@@ -45,6 +45,7 @@ const SkillsList = () => {
     "Application Development": [
       "Frontend (Vue.js, Tailwind CSS)",
       "Backend (Laravel, MySQL, RESTful API Design)",
+      "DevOps (CI/CD, GitHub Actions, Docker, Linux)",
       "iOS Native Apps (Swift, SwiftUI)",
     ],
     "AI Trading": [
