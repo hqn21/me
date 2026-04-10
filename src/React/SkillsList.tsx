@@ -43,7 +43,7 @@ const SkillsList = () => {
       "Model Context Protocol (MCP) Servers",
     ],
     "Application Development": [
-      "Frontend (Vue.js, Tailwind CSS)",
+      "Frontend (Astro, Vue.js, Tailwind CSS)",
       "Backend (Laravel, MySQL, RESTful API Design)",
       "DevOps (CI/CD, GitHub Actions, Docker, Linux)",
       "iOS Native Apps (Swift, SwiftUI)",
