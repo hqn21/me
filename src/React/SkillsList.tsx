@@ -97,12 +97,14 @@ const SkillsList = () => {
                     : "max-h-0 opacity-0"
                 }`}
               >
-                <ul className="space-y-2 text-[var(--white-icon)] text-sm">
+                <ul className="space-y-2 text-[var(--white-icon)]">
                   {items.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                      <span className="pl-1">•</span>
-                      <li className="pl-3">{item}</li>
-                    </div>
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <span aria-hidden="true" className="flex-shrink-0 h-5 flex items-center">
+                          <span className="w-1 h-1 rounded-full bg-current" />
+                        </span>
+                        <span>{item}</span>
+                      </li>
                   ))}
                 </ul>
               </div>
