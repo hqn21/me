@@ -24,6 +24,7 @@ const LetterGlitch = ({
     }[]
   >([]);
   const grid = useRef({ columns: 0, rows: 0 });
+  const dimensions = useRef({ width: 0, height: 0 });
   const context = useRef<CanvasRenderingContext2D | null>(null);
   const lastGlitchTime = useRef(Date.now());
 
@@ -156,6 +157,7 @@ const LetterGlitch = ({
 
     const dpr = window.devicePixelRatio || 1;
     const rect = parent.getBoundingClientRect();
+    dimensions.current = { width: rect.width, height: rect.height };
 
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
@@ -175,7 +177,7 @@ const LetterGlitch = ({
   const drawLetters = () => {
     if (!context.current || letters.current.length === 0) return;
     const ctx = context.current;
-    const { width, height } = canvasRef.current!.getBoundingClientRect();
+    const { width, height } = dimensions.current;
     ctx.clearRect(0, 0, width, height);
     ctx.font = `${fontSize}px monospace`;
     ctx.textBaseline = "top";
@@ -255,24 +257,49 @@ const LetterGlitch = ({
 
     context.current = canvas.getContext("2d");
     resizeCanvas();
-    animate();
+
+    const startAnimation = () => {
+      if (animationRef.current == null) {
+        lastGlitchTime.current = Date.now();
+        animate();
+      }
+    };
+
+    const stopAnimation = () => {
+      if (animationRef.current != null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
+
+    // Only animate while the canvas is on screen. An always-on rAF loop that
+    // redraws the whole canvas every frame otherwise steals main-thread time
+    // from scrolling and other animations.
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
+    });
+    visibilityObserver.observe(canvas);
 
     let resizeTimeout: NodeJS.Timeout;
 
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        cancelAnimationFrame(animationRef.current as number);
         resizeCanvas();
-        animate();
       }, 100);
     };
 
     window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationFrame(animationRef.current!);
+      stopAnimation();
+      visibilityObserver.disconnect();
       window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [glitchSpeed, smooth]);
