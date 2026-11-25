@@ -69,9 +69,13 @@ body {
   width: 100%;
   max-width: 34rem;
   min-height: 100vh;
-  min-height: 100dvh;
   margin: 0 auto;
   padding: 2rem 1.5rem 1.5rem;
+}
+@supports (min-height: 100dvh) {
+  .shell {
+    min-height: 100dvh;
+  }
 }
 .content {
   margin-block: auto;
@@ -213,6 +217,8 @@ body {
 }
 
 .spotlight {
+  --mx: 50%;
+  --my: 50%;
   position: fixed;
   inset: 0;
   z-index: 0;
