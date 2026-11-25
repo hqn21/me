@@ -1,18 +1,177 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import Nav from "@/components/nav.astro";
-import Home from "@/components/home.astro";
-import Education from "@/components/education.astro";
-import Projects from "@/components/projects.astro";
-import Contact from "@/components/contact.astro";
-import Footer from "@/components/footer.astro";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "../styles/global.css";
+import { site } from "../config";
+import TextEffect from "../components/TextEffect.astro";
+import Icon from "../components/Icon.astro";
+import ThemeSwitch from "../components/ThemeSwitch.astro";
+
+const year = new Date().getFullYear();
+const pageTitle = `${site.name}, ${site.title}`;
+const pageUrl = new URL("/", site.url).href;
+const ogImage = new URL("/og.png", site.url).href;
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  url: pageUrl,
+  description: site.description,
+  affiliation: {
+    "@type": "CollegeOrUniversity",
+    name: site.affiliation,
+  },
+  sameAs: site.socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
+};
+const personJson = JSON.stringify(personSchema).replace(/</g, "\\u003c");
 ---
 
-<Layout title="Hao-Quan Liu">
-  <Nav />
-  <Home />
-  <Education />
-  <Projects />
-  <Contact />
-  <Footer />
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={pageUrl} />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={pageTitle} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="theme-color" content="#ffffff" />
+
+    <script is:inline type="application/ld+json" set:html={personJson} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <script is:inline>
+      (function () {
+        var p = "system";
+        try { p = localStorage.getItem("theme") || "system"; } catch (e) {}
+        if (p !== "light" && p !== "dark") p = "system";
+        var d = p === "dark" || (p === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = d ? "dark" : "light";
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute("content", d ? "#09090b" : "#ffffff");
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="spotlight" aria-hidden="true"></div>
+
+    <div class="shell">
+      <main class="content">
+        <header class="intro">
+          <TextEffect as="h1" class="name" text={site.name} stagger={0.06} />
+          <TextEffect as="p" class="title" text={site.title} delay={0.15} stagger={0.06} />
+        </header>
+
+        <section class="body" aria-label="About">
+          <TextEffect as="p" class="bio" text={site.bio} delay={0.3} stagger={0.012} />
+
+          {site.status && (
+            <p class="status fade" style="--d:.7s">
+              <span class:list={["dot", { on: site.status.available }]} aria-hidden="true"></span>
+              <span>{site.status.text}</span>
+              {site.location && <span class="loc">{site.location}</span>}
+            </p>
+          )}
+
+          <ul class="socials fade" style="--d:.8s">
+            {site.socials.map((s) => {
+              const external = s.href.startsWith("http");
+              return (
+                <li>
+                  <a
+                    class="chip"
+                    data-magnetic
+                    href={s.href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                  >
+                    <span class="chip-inner">
+                      <Icon name={s.icon} />
+                      {s.label}
+                      {external && (
+                        <>
+                          <span class="sr-only">(opens in a new tab)</span>
+                          <svg class="arrow" width="12" height="12" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                            <path d="M3.65 11.35 11.35 3.65M5 3.5h6.5V10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </>
+                      )}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      </main>
+
+      <footer class="foot fade" style="--d:1s">
+        <span>© {year} {site.name}</span>
+        <ThemeSwitch />
+      </footer>
+    </div>
+
+    <script>
+      const fine = matchMedia("(pointer: fine)").matches;
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (fine && !calm) {
+        document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((el) => {
+          const inner = el.querySelector<HTMLElement>(".chip-inner");
+          const anchor = el.parentElement;
+          if (!inner || !anchor) return;
+          el.addEventListener("pointermove", (e: PointerEvent) => {
+            const r = anchor.getBoundingClientRect();
+            const x = e.clientX - (r.left + r.width / 2);
+            const y = e.clientY - (r.top + r.height / 2);
+            el.style.transform = `translate(${x * 0.25}px, ${y * 0.35}px)`;
+            inner.style.transform = `translate(${x * 0.08}px, ${y * 0.1}px)`;
+          });
+          el.addEventListener("pointerleave", () => {
+            el.style.transform = "";
+            inner.style.transform = "";
+          });
+        });
+
+        const spot = document.querySelector<HTMLElement>(".spotlight");
+        if (spot) {
+          let frame = 0;
+          let mx = 0;
+          let my = 0;
+          addEventListener("pointermove", (e: PointerEvent) => {
+            mx = e.clientX;
+            my = e.clientY;
+            if (frame) return;
+            frame = requestAnimationFrame(() => {
+              frame = 0;
+              spot.style.setProperty("--mx", `${mx}px`);
+              spot.style.setProperty("--my", `${my}px`);
+              spot.style.opacity = "1";
+            });
+          });
+          document.addEventListener("pointerleave", () => {
+            spot.style.opacity = "0";
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

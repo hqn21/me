@@ -1,0 +1,142 @@
+---
+const options = [
+  {
+    id: "light",
+    label: "Light theme",
+    icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  },
+  {
+    id: "dark",
+    label: "Dark theme",
+    icon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  },
+  {
+    id: "system",
+    label: "System theme",
+    icon: '<rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  },
+];
+---
+
+<div class="ts" role="group" aria-label="Theme">
+  <span class="ts-bg" aria-hidden="true"></span>
+  {options.map((o) => (
+    <button type="button" class="ts-btn" data-theme-value={o.id} aria-label={o.label} aria-pressed="false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={o.icon} />
+    </button>
+  ))}
+</div>
+
+<style>
+  .ts {
+    --x: 2px;
+    position: relative;
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 999px;
+  }
+  :global(html:not([data-theme])) .ts {
+    visibility: hidden;
+  }
+  .ts-bg {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--chip);
+    transform: translateX(var(--x, 2px));
+    transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+  .ts-btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .ts-btn:hover,
+  .ts-btn[aria-pressed="true"] {
+    color: var(--fg);
+  }
+  .ts-btn:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 1px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ts-bg,
+    .ts-btn {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  type ThemePref = "light" | "dark" | "system";
+  const PREFS: readonly ThemePref[] = ["light", "dark", "system"];
+  const KEY = "theme";
+
+  const root = document.documentElement;
+  const wrap = document.querySelector<HTMLElement>(".ts");
+  const mq = matchMedia("(prefers-color-scheme: dark)");
+
+  if (wrap) {
+    const btns = [...wrap.querySelectorAll<HTMLButtonElement>(".ts-btn")];
+
+    const parse = (v: string | null): ThemePref =>
+      PREFS.includes(v as ThemePref) ? (v as ThemePref) : "system";
+
+    const read = (): ThemePref => {
+      try {
+        return parse(localStorage.getItem(KEY));
+      } catch {
+        return "system";
+      }
+    };
+
+    let current: ThemePref = read();
+
+    const apply = () => {
+      const dark = current === "dark" || (current === "system" && mq.matches);
+      root.dataset.theme = dark ? "dark" : "light";
+      document
+        .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+        ?.setAttribute("content", dark ? "#09090b" : "#ffffff");
+      btns.forEach((b, i) => {
+        const on = b.dataset.themeValue === current;
+        b.setAttribute("aria-pressed", String(on));
+        if (on) wrap.style.setProperty("--x", `${2 + i * 30}px`);
+      });
+    };
+
+    btns.forEach((b) =>
+      b.addEventListener("click", () => {
+        current = parse(b.dataset.themeValue ?? null);
+        try {
+          localStorage.setItem(KEY, current);
+        } catch {}
+        apply();
+      }),
+    );
+
+    mq.addEventListener("change", () => {
+      if (current === "system") apply();
+    });
+
+    addEventListener("storage", (e: StorageEvent) => {
+      if (e.key !== KEY) return;
+      current = parse(e.newValue);
+      apply();
+    });
+
+    apply();
+  }
+</script>

@@ -1,0 +1,303 @@
+:root {
+  --bg: #ffffff;
+  --fg: #18181b; /* zinc-900 */
+  --muted: #71717a; /* zinc-500 */
+  --body: #52525b; /* zinc-600 */
+  --chip: #f4f4f5; /* zinc-100 */
+  --chip-hover: #e4e4e7; /* zinc-200 */
+  --line: #e4e4e7;
+  --glow: rgba(24, 24, 27, 0.045);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #09090b; /* zinc-950 */
+  --fg: #fafafa;
+  --muted: #83838c;
+  --body: #a1a1aa; /* zinc-400 */
+  --chip: #18181b; /* zinc-900 */
+  --chip-hover: #27272a; /* zinc-800 */
+  --line: #27272a;
+  --glow: rgba(250, 250, 250, 0.05);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #09090b;
+    --fg: #fafafa;
+    --muted: #83838c;
+    --body: #a1a1aa;
+    --chip: #18181b;
+    --chip-hover: #27272a;
+    --line: #27272a;
+    --glow: rgba(250, 250, 250, 0.05);
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.3s, color 0.3s;
+}
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 34rem;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 1.5rem;
+}
+@supports (min-height: 100dvh) {
+  .shell {
+    min-height: 100dvh;
+  }
+}
+.content {
+  margin-block: auto;
+}
+.intro {
+  margin-bottom: 1.5rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.title {
+  margin: 0;
+  color: var(--muted);
+  text-wrap: balance;
+}
+
+.bio {
+  margin: 0 0 1.25rem;
+  color: var(--body);
+  text-wrap: pretty;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.75rem;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+}
+.status > span {
+  white-space: nowrap;
+}
+.status .loc {
+  margin-left: 0.25rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--line);
+}
+.dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.dot.on {
+  background: #22c55e;
+}
+.dot.on::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  display: inline-flex;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--fg);
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s;
+}
+.chip:hover {
+  background: var(--chip-hover);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.chip-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chip-inner > svg:first-child {
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.chip:hover .chip-inner > svg:first-child {
+  color: var(--fg);
+}
+.arrow {
+  margin-left: -0.1rem;
+  color: var(--muted);
+  transition: transform 0.25s, color 0.2s;
+}
+.chip:hover .arrow {
+  color: var(--fg);
+  transform: translate(1px, -1px);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.fade {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) forwards;
+}
+@keyframes fade-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.spotlight {
+  --mx: 50%;
+  --my: 50%;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .dot.on::after {
+    animation: none;
+  }
+  .chip,
+  .chip-inner,
+  .arrow,
+  .spotlight {
+    transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .socials {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .chip,
+  .chip-inner {
+    width: 100%;
+  }
+  .chip-inner {
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.55rem 0.25rem;
+  }
+  .arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 340px) {
+  .status {
+    font-size: 12px;
+  }
+  .status .loc {
+    margin-left: 0;
+    padding-left: 0.5rem;
+  }
+}
+
+@media (max-height: 430px) {
+  .shell {
+    gap: 1rem;
+    padding-block: 1rem;
+  }
+  .intro {
+    margin-bottom: 0.75rem;
+  }
+  .bio {
+    margin-bottom: 0.75rem;
+  }
+  .status {
+    margin-bottom: 1rem;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
