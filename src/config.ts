@@ -8,7 +8,7 @@ export const site = {
   title: "M.S. Student in Computer Science @ NTU",
   bio: "My work centers on LLM-based agents, covering multi-agent retrieval, MCP servers, and interaction-based scam website detection. My other focus is deep learning for financial time series classification.",
   status: {
-    text: "Open to new opportunities",
+    text: "Looking for internships",
     available: true,
   } as { text: string; available: boolean } | undefined,
   location: "Taipei, Taiwan",
